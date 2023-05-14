@@ -19,3 +19,4 @@ Rating calculations are based on the Atcoder Rating System.
 - `data` - raw data, json from codeforces and atcoder API
 - `ndata` - lookup data (atcoder)
 - `fdata` - formatted data (takes in `data` and `ndata` and dumps it here, to be processed by some c++ probably?)
+- `extra` - extra data (formatted), "unofficial standings" that are mixed with `fdata` to get results
