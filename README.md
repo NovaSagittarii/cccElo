@@ -1,7 +1,6 @@
 # CCC RATING CALCULATIONS
----
-dedicated to andy who does not get up at 7am to do codeforces
-and so i get a bunch of data, combine them, do some math on it, to get unofficial ratings
+> dedicated to andy who does not get up at 7am to do codeforces
+> and so i get a bunch of data, combine them, do some math on it, to get unofficial ratings
 
 Rating calculations are based on the Atcoder Rating System.
 
@@ -21,9 +20,17 @@ Rating calculations are based on the Atcoder Rating System.
 - `fdata` - formatted data (takes in `data` and `ndata` and dumps it here, to be processed by some c++ probably?)
 - `extra` - extra data (formatted), "unofficial standings" that are mixed with `fdata` to get results
 
-### Building
+### Running
 ```sh
+# Fetch data
+python3 fetchAC.py && python3 fetchCF.py
+
+# Process data
+python3 format.py
+
+# Run calculator
 make && ./calculator
+
 # g++ -c -fPIC calculator-lib.cpp -o foo.o
 # g++ -shared -Wl,-soname,libfoo.so -o libfoo.so  foo.o
 ```
