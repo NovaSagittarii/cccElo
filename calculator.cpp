@@ -13,7 +13,6 @@
 
 #include <fstream>
 #include <filesystem>
-namespace fs = std::filesystem;
 
 bool peekContestFile(const std::string& path, Contest& contest){
     std::fstream fs;
@@ -155,7 +154,7 @@ int main(){
     std::map<std::string, User> users;
 
     const std::string path = "./fdata";
-    for (const auto & entry : fs::directory_iterator(path)){
+    for (const auto & entry : std::filesystem::directory_iterator(path)){
         Contest contest;
         if(peekContestFile(entry.path(), contest)){
             contests.push_back(contest);
