@@ -10,7 +10,7 @@ Rating calculations are based on the Atcoder Rating System.
 | Codeforces Div 1         | 9999 | Similar to AGC            |
 | Codeforces Div 2         | 2800 | Similar to ARC, cf-2100 is around ac-1800 (28/18 ~ 1.5) |
 | Codeforces Div 3         | 1800 | cf-1600 is around ac-1200 (1200 x 1.5 = 1800) |
-| Codeforces Div 4         | 1350 | cf-1200 is around ac-900 (900 x 1.5 = 1350) |
+| Codeforces Div 4         | 1350 | cf-1400 is around ac-900 (900 x 1.5 = 1350) |
 | Atcoder Grand Contest    | 9999 | |
 | Atcoder Regular Contest  | 2800 | |
 | Atcoder Beginner Contest | 2000 | |
