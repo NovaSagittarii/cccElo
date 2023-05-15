@@ -1,6 +1,4 @@
-#include "./Parallel-Quicksort/parallel.h"
-#include "./Parallel-Quicksort/get_time.h"
-
+#include "./parlaylib/include/parlay/parallel.h"
 #include "calculator.h"
 
 #include <algorithm>
