@@ -1,0 +1,3 @@
+[submodule "Parallel-Quicksort"]
+	path = Parallel-Quicksort
+	url = https://github.com/ucrparlay-class/Parallel-Quicksort
