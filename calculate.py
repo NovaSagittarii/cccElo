@@ -1,5 +1,6 @@
 import math
 import os
+from multiprocessing import Pool
 
 extra = os.listdir('./extra')
 files = os.listdir('./fdata')
@@ -12,7 +13,7 @@ contests = []
 users = {}
 
 print("Initializing")
-for fileName in files:
+def loadFile(fileName):
     # print(fileName)
     f = open(os.path.join(RESULTS_PATH, fileName), "r")
 
@@ -25,39 +26,61 @@ for fileName in files:
     phirasit 1000 1743
     """
     lines = [line.strip() for line in f.read().splitlines()]
-    if len(lines) <= 5: continue
+    if len(lines) <= 5: return None
 
     PLATFORM, CONTESTID = lines[0].split()
     RATEDBOUND, TIME = map(int, lines[1].split())
     CONTESTNAME = lines[2]
     CONTESTANTS = tuple(PLATFORM+"::"+line.split()[0] for line in lines[5:])
     contest = ((TIME, CONTESTNAME, RATEDBOUND, CONTESTANTS))
-    contests.append(contest)
     f.close()
+    return contest
+# for fileName in files: loadFile(fileName)
+with Pool() as p: contests = p.map(loadFile, files)
 
+contests = list(filter(lambda x: x!=None, contests))
 contests.sort(key=lambda x:x[0]) # sort by time
 mostRecentContestContestants = set(contests[-1][1])
 # print(contests)
 
+ctn = 0
 for contestTime, contestName, RATEDBOUND, contestants in contests:
     CENTER = 1200
     if RATEDBOUND <= 2000: CENTER = 800
     elif RATEDBOUND <= 2800: CENTER = 1000
 
-    print(contestTime, contestName, len(contestants), RATEDBOUND)
     APerf = []
     Perfs = []
     if len(contestants) < MIN_PARTICIPANTS: continue
-    for contestant in contestants:
-        if contestant not in users: APerf.append(CENTER)
+    ctn += 1
+    if(ctn > 1): break
+    print(ctn, contestTime, contestName, len(contestants), RATEDBOUND)
+
+    def calculateAPerf(contestant):
+        if contestant not in users: return CENTER
         else:
             weightedSum, weightedTotal = 0, 0
             for i, performance in enumerate(reversed(users[contestant])):
                 k = 0.9 ** (i+1)
                 weightedSum += k * performance
                 weightedTotal += k
-            APerf.append(weightedSum / weightedTotal)
-    for i, contestant in enumerate(contestants):
+            return weightedSum / weightedTotal
+    with Pool() as p:
+        APerf = p.map(calculateAPerf, contestants)
+    
+    # filter out of competition people
+    newAPerf = []
+    newContestants = []
+    for i in range(len(contestants)):
+        if APerf[i] < RATEDBOUND:
+            newAPerf.append(APerf[i])
+            newContestants.append(contestants[i])
+    APerf, contestants = newAPerf, newContestants
+    
+    def calculatePerf(enumeratedValue):
+        i, contestant = enumeratedValue
+        # TODO: figure out ties
+    # for i, contestant in enumerate(contestants):
         # print(i)
         r = (i+1) - 0.5
 
@@ -70,11 +93,16 @@ for contestTime, contestName, RATEDBOUND, contestants in contests:
             if lhs > r: lo = mid
             elif lhs < r: hi = mid
             else: break
+        mid = min(mid, RATEDBOUND + 400)
         # Perfs.append((contestant, mid))
-        if contestant not in users: users[contestant] = [mid]
-        else: users[contestant].append(mid)
+        return mid
+    with Pool() as p:
+        performances = p.map(calculatePerf, enumerate(contestants))
+    for i, contestant in enumerate(contestants):
+        performance = performances[i]
+        if contestant not in users: users[contestant] = [performance]
+        else: users[contestant].append(performance)
     # print(Perfs)
-    break
 ratings = []
 
 def geometricSeries(a1, r, n):
