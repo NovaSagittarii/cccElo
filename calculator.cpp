@@ -37,7 +37,7 @@ bool peekContestFile(const std::string& path, Contest& contest){
     return success;
 }
 
-void processContest(Contest& contest, std::map<std::string, User> users){
+void processContest(Contest& contest, std::map<std::string, User>& users){
     /// @brief array of AveragePerformance, used to determine performance
     std::vector<double> APerf;
     
@@ -57,7 +57,7 @@ void processContest(Contest& contest, std::map<std::string, User> users){
     std::vector<int> problemWeights(problems);
     for(int i = 0; i < problems; i ++) fs >> problemWeights[i];
 
-    std::cout << time << ") " << contest.path << " // " << " " << contestName << std::endl;
+    std::cout << "[" << time << "] " << contest.path << " // " << contestName << " ( ~ " << ratedBound << ")" << std::endl;
 
     int maxScore = 0;
     for(int x : problemWeights) maxScore += x;
@@ -112,11 +112,39 @@ void processContest(Contest& contest, std::map<std::string, User> users){
         mid = std::min(mid, contest.RatedBound + 400);
         pos = mid;
 	});
-    for(auto [rating, users] : calculations){
-        for(auto user : users){
-            std::cout << rating << " " << user << std::endl;
+    for(const auto [rating, ratedUsers] : calculations){
+        // std::cout << rating << " " << ratedUsers[0] << std::endl;
+        for(const std::string user : ratedUsers){
+            // std::cout << rating << " " << user << std::endl;
+            if(users.count(user) == 0){
+                users[user] = User();
+                users[user].contests = 0;
+                users[user].name = user;
+                users[user].performance = rating;
+                users[user].performanceHistory = std::vector(1, rating);
+            }else{
+                const int contests = users[user].contests;
+                const double p = users[user].performance;
+                users[user].performance = (p * math::geometricSequence(0.9, 0.9, contests) + rating) * 0.9 / math::geometricSequence(0.9, 0.9, contests+1);
+                users[user].contests ++;
+                users[user].performanceHistory.push_back(rating);
+            }
         }
     }
+}
+
+double calculateRating(const User& user){
+    int contests = (int)user.performanceHistory.size();
+    double k = 0.9;
+    double weightedSum = 0;
+    double weightedTotal = math::geometricSequence(0.9, 0.9, contests);
+    for(int i = (int)user.performanceHistory.size()-1; i >= 0; i --){
+        double perf = user.performanceHistory[i];
+        weightedSum += k * math::g(perf);
+        k *= 0.9;
+    }
+    double rating = math::gInv(weightedSum/weightedTotal) - math::f(contests);
+    return math::positivizeRating(rating);
 }
 
 int main(){
@@ -136,11 +164,25 @@ int main(){
     std::sort(contests.begin(), contests.end(), [](const auto& lhs, const auto& rhs){
         return lhs.time < rhs.time;
     });
-    int ctn = 0;
+    // int ctn = 0;
     for(auto contest : contests){
-        if(++ctn >= 200) break;
+        // if(++ctn >= 40) break;
+        // if(++ctn >= 200) break;
         processContest(contest, users);
         // break;
+    }
+
+    std::vector<std::pair<int, std::string>> ratings;
+    for(auto [username, user] : users){
+        ratings.push_back(std::make_pair(calculateRating(user), username));
+    }
+    std::sort(ratings.begin(), ratings.end());
+    std::reverse(ratings.begin(), ratings.end());
+
+    int usersPrinted = 0;
+    for(auto [rating, username] : ratings){
+        std::cout << rating << " " << username << "\n";
+        if(++usersPrinted >= 20) break;
     }
 
     return 0;

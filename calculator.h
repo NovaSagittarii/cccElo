@@ -40,7 +40,12 @@ bool peekContestFile(const std::string&, Contest&);
 /// @brief process the contest results and update users
 /// @param contest
 /// @param users
-void processContest(Contest&, std::map<std::string, User>);
+void processContest(Contest&, std::map<std::string, User>&);
+
+/// @brief calculate the rating of a user from their performance
+/// @param user user to calculate for
+/// @return user's rating
+double calculateRating(const User&);
 
 /// @brief math functions for rating calculations
 namespace math {
