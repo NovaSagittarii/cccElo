@@ -11,12 +11,18 @@ struct Contest {
     std::string name;
     /// @brief path to the file of the contest file (to reopen when needed)
     std::string path;
+    /// @brief path to the file of the contest file, processed results
+    std::string processedPath;
     /// @brief time in seconds since Unix epoch
     long long time;
     /// @brief RATEDBOUND of the contest
     double RatedBound;
     /// @brief CENTER of the contest
     double Center;
+    /// @brief whether this is a real contest (official) or an extra one (unofficial)
+    bool official;
+    /// @brief who participated
+    std::vector<std::string> participants;
 };
 
 /// @brief container representing a single user
@@ -34,12 +40,13 @@ struct User {
 /// @brief read just the headers of a file to determine its start date (to be sorted)
 /// @param path path of the file to peek
 /// @param contest where result data will be written into
+/// @param officialContest whether the contest is "official" or not
 /// @return if reading was successful
-bool peekContestFile(const std::string&, Contest&);
+bool peekContestFile(const std::string&, Contest&, const bool);
 
-/// @brief process the contest results and update users
-/// @param contest
-/// @param users
+/// @brief process the contest results and update users, creates a file for the results afterwards
+/// @param contest contest object to process
+/// @param users list of users operations are applied to
 void processContest(Contest&, std::map<std::string, User>&);
 
 /// @brief calculate the rating of a user from their performance
