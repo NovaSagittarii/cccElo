@@ -25,7 +25,7 @@ bool peekContestFile(const std::string& path, Contest& contest, const bool offic
     bool success = false;
     if(fs >> type >> id >> ratedBound >> time){
         // std::cout << id << std::endl;
-        contest.name = type + " " + id;
+        contest.name = type + "-" + id;
         contest.path = path;
         contest.processedPath = std::regex_replace(path, std::regex("/[^/]+/"), "/cache/");
         contest.time = time;
@@ -65,6 +65,7 @@ void processContest(Contest& contest, std::map<std::string, User>& users){
     fs >> type >> id >> ratedBound >> time;
     fs.ignore();
     std::getline(fs, contestName);
+    contest.fullName = contestName;
     fs >> problems;
     std::vector<int> problemWeights(problems);
     for(int i = 0; i < problems; i ++) fs >> problemWeights[i];
@@ -263,6 +264,9 @@ int main(){
     
     std::set<std::string> unofficialUsers;
     // int ctn = 0;
+
+    // clear contest metadata file
+    std::ofstream contestMetadataFile("html_data/contests.txt", std::ios::trunc);
     for(auto contest : contests){
         // if(++ctn > 2) break;
         // if(++ctn >= 40) break;
@@ -270,9 +274,17 @@ int main(){
         processContest(contest, users);
         if(!contest.official){
             std::cout << contest.name << std::endl;
-            for(auto user : contest.participants) unofficialUsers.insert(user);
+            for(auto username : contest.participants) unofficialUsers.insert(username);
         }
         // break;
+        contestMetadataFile << contest.name << " " << contest.time << " " << contest.RatedBound << " " << contest.fullName << "\n";
+        for(auto username : contest.participants){
+            // if(!unofficialUsers.count(username)) continue;
+            std::ofstream userfile("html_data/" + username + ".txt", std::ios::app);
+            userfile << contest.name << " " << calculateRating(users[username]) << "\n";
+            userfile.close();
+        }
+	std::cout << contest.fullName << std::endl;
     }
     // for(auto x : unofficialUsers) std::cout << x << " ";
     unofficialUsers.insert("Akatsuki_");

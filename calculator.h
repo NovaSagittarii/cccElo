@@ -9,6 +9,8 @@
 struct Contest {
     /// @brief name of the contest
     std::string name;
+    /// @brief full name of the contest
+    std::string fullName;
     /// @brief path to the file of the contest file (to reopen when needed)
     std::string path;
     /// @brief path to the file of the contest file, processed results
